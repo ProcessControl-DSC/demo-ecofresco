@@ -59,8 +59,13 @@ class PcMesKioskController(HrAttendance):
         tasks = []
         if show_task:
             # Exclude closed/cancelled stages — filter on stage fold
+            # Include tasks with no stage as well as tasks in a non-folded
+            # stage (a folded stage marks closed/cancelled work).
             task_domain = [
+                "&",
                 ("active", "=", True),
+                "|",
+                ("stage_id", "=", False),
                 ("stage_id.fold", "=", False),
             ]
             if company_id:
