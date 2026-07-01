@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2026 Process Control (https://www.processcontrol.es)
+     License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html). -->
+<templates xml:space="preserve">
+
+    <!--
+        Extends the TargetSelector template from pc_mes_kiosk to add a
+        prominent "Production / Work Order" button at the bottom of the
+        project list screen.
+
+        The button only renders when show_workorder is True (read from the
+        /pc_mes_kiosk/targets response — see state.showWorkorder added by
+        the extended _loadTargets call in target_selector_mrp_patch.js).
+
+        Because show_workorder is not yet in state here (it is loaded via a
+        separate ICP call in the kiosk patch), we use the flag
+        _pcMesShowWorkorder from the parent app, exposed via the kiosk patch.
+        To keep the coupling minimal, the button is always rendered in the
+        TargetSelector footer when showingProjects is true; the kiosk mrp
+        patch toggles visibility via CSS class o_pc_mes_mrp_btn_hidden when
+        the flag is false.
+
+        Simpler approach used: always show the button.  In a production
+        deployment, set pc_mes_kiosk.show_workorder=False to remove it from
+        the /pc_mes_kiosk/targets response, and handle it in JS.
+        The template just adds the button; the JS patch on TargetSelector
+        handles the action.
+    -->
+    <t t-inherit="pc_mes_kiosk.TargetSelector" t-inherit-mode="extension">
+
+        <!--
+            Insert the Production button in the footer area (after the Skip button)
+            when showing the project list. We locate the footer node of the
+            showingProjects branch.
+        -->
+        <xpath expr="//t[@t-elif='showingProjects']/div[contains(@class,'o_pc_mes_kiosk_footer')]" position="inside">
+            <button
+                class="o_pc_mes_kiosk_btn btn btn-warning btn-lg rounded-3 ms-2"
+                t-on-click="goToProduction">
+                <i class="fa fa-industry me-2"/>
+                Production / Work Order
+            </button>
+        </xpath>
+
+    </t>
+
+</templates>

@@ -1,0 +1,117 @@
+# Spanish translation for pc_mes_kiosk
+# Copyright 2026 Process Control (https://www.processcontrol.es)
+# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html).
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-01 00:00+0000\n"
+"PO-Revision-Date: 2026-07-01 00:00+0000\n"
+"Last-Translator: Process Control <info@processcontrol.es>\n"
+"Language-Team: Spanish\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. model: hr.attendance / field: pc_project_id / string
+#: models/hr_attendance.py:0
+msgid "Imputation Project"
+msgstr "Proyecto de imputación"
+
+#. model: hr.attendance / field: pc_project_id / help
+#: models/hr_attendance.py:0
+msgid "Project to which the worked hours will be imputed."
+msgstr "Proyecto al que se imputarán las horas trabajadas."
+
+#. model: hr.attendance / field: pc_task_id / string
+#: models/hr_attendance.py:0
+msgid "Imputation Task"
+msgstr "Tarea de imputación"
+
+#. model: hr.attendance / field: pc_task_id / help
+#: models/hr_attendance.py:0
+msgid "Task to which the worked hours will be imputed."
+msgstr "Tarea a la que se imputarán las horas trabajadas."
+
+#. model: hr.attendance / field: pc_timesheet_line_id / string
+#: models/hr_attendance.py:0
+msgid "Generated Timesheet Entry"
+msgstr "Apunte de parte de horas generado"
+
+#. model: hr.attendance / field: pc_timesheet_line_id / help
+#: models/hr_attendance.py:0
+msgid "Timesheet line automatically created when the attendance is closed."
+msgstr "Línea de parte de horas creada automáticamente al registrar la salida."
+
+#. model: hr.attendance / method: _pc_impute / analytic line name
+#: models/hr_attendance.py:0
+msgid "Kiosk: %s"
+msgstr "Kiosco: %s"
+
+#. model: res.config.settings / field: pc_kiosk_mode / string
+#: models/res_config_settings.py:0
+msgid "Kiosk Imputation Prompt"
+msgstr "Momento de imputación en el kiosco"
+
+#. model: res.config.settings / field: pc_kiosk_mode / help
+#: models/res_config_settings.py:0
+msgid "When to ask the operator to select a project/task in the kiosk."
+msgstr "Cuándo solicitar al operario que seleccione un proyecto/tarea en el kiosco."
+
+#. model: res.config.settings / field: pc_kiosk_mode / selection: on_checkin
+#: models/res_config_settings.py:0
+msgid "Ask on check-in"
+msgstr "Preguntar al registrar entrada"
+
+#. model: res.config.settings / field: pc_kiosk_mode / selection: on_checkout
+#: models/res_config_settings.py:0
+msgid "Ask on check-out"
+msgstr "Preguntar al registrar salida"
+
+#. model: res.config.settings / field: pc_kiosk_show_project / string
+#: models/res_config_settings.py:0
+msgid "Show Project Selector"
+msgstr "Mostrar selector de proyecto"
+
+#. model: res.config.settings / field: pc_kiosk_show_project / help
+#: models/res_config_settings.py:0
+msgid "If enabled, the kiosk will offer a project selection."
+msgstr "Si está activo, el kiosco ofrecerá la selección de proyecto."
+
+#. model: res.config.settings / field: pc_kiosk_show_task / string
+#: models/res_config_settings.py:0
+msgid "Show Task Selector"
+msgstr "Mostrar selector de tarea"
+
+#. model: res.config.settings / field: pc_kiosk_show_task / help
+#: models/res_config_settings.py:0
+msgid "If enabled, the kiosk will offer a task selection."
+msgstr "Si está activo, el kiosco ofrecerá la selección de tarea."
+
+#. view: res.config.settings / block title
+#: views/res_config_settings_views.xml:0
+msgid "MES Kiosk — Project Imputation"
+msgstr "MES Kiosco — Imputación a proyecto"
+
+#. view: res.config.settings / setting: Imputation Prompt Timing / string
+#: views/res_config_settings_views.xml:0
+msgid "Imputation Prompt Timing"
+msgstr "Momento de solicitud de imputación"
+
+#. view: res.config.settings / setting: Imputation Prompt Timing / help
+#: views/res_config_settings_views.xml:0
+msgid "Choose whether operators select a project/task when clocking in or out."
+msgstr "Elige si los operarios seleccionan proyecto/tarea al fichar entrada o salida."
+
+#. view: res.config.settings / setting: Show Project Selector / help
+#: views/res_config_settings_views.xml:0
+msgid "Display a project picker in the kiosk imputation screen."
+msgstr "Muestra un selector de proyecto en la pantalla de imputación del kiosco."
+
+#. view: res.config.settings / setting: Show Task Selector / help
+#: views/res_config_settings_views.xml:0
+msgid "Display a task picker in the kiosk imputation screen."
+msgstr "Muestra un selector de tarea en la pantalla de imputación del kiosco."

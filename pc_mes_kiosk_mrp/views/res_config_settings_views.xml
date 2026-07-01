@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--
+        Adds the "Work Order Selector" toggle to the MES Kiosk settings block
+        defined by pc_mes_kiosk.
+    -->
+    <record id="pc_mes_kiosk_mrp_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">pc.mes.kiosk.mrp.res.config.settings.view.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="pc_mes_kiosk.pc_mes_kiosk_res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='pc_mes_kiosk_block']" position="inside">
+                <setting
+                    string="Show Work Order Selector"
+                    help="Display a Manufacturing Work Order path in the kiosk so operators can log time against production orders."
+                >
+                    <field name="pc_kiosk_show_workorder" />
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>
