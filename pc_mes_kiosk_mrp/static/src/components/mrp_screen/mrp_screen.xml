@@ -10,7 +10,7 @@
             <t t-if="state.loading">
                 <div class="o_pc_mes_kiosk_loading d-flex flex-column align-items-center justify-content-center flex-grow-1">
                     <i class="fa fa-spinner fa-spin fa-3x text-muted mb-3"/>
-                    <span class="text-muted fs-5">Loading manufacturing orders…</span>
+                    <span class="text-muted fs-5">Cargando órdenes de fabricación…</span>
                 </div>
             </t>
 
@@ -22,7 +22,7 @@
                         <t t-esc="state.error"/>
                     </div>
                     <button class="btn btn-secondary btn-lg rounded-pill px-5" t-on-click="skip">
-                        Skip
+                        Omitir
                     </button>
                 </div>
             </t>
@@ -33,7 +33,7 @@
                     <div class="o_pc_mes_kiosk_header text-center py-4">
                         <h2 class="fw-bold">
                             <i class="fa fa-industry me-2"/>
-                            Select Manufacturing Order
+                            Selecciona la orden de fabricación
                         </h2>
                     </div>
                     <div class="o_pc_mes_kiosk_grid d-flex flex-wrap justify-content-center gap-3 p-4 overflow-auto">
@@ -52,14 +52,14 @@
                         </t>
                         <t t-if="!state.productions.length">
                             <div class="text-muted fst-italic py-3">
-                                No active manufacturing orders.
+                                No hay órdenes de fabricación activas.
                             </div>
                         </t>
                     </div>
                 </div>
                 <div class="o_pc_mes_kiosk_footer py-4">
                     <button class="btn btn-outline-secondary btn-lg rounded-pill px-5" t-on-click="skip">
-                        Skip
+                        Omitir
                     </button>
                 </div>
             </t>
@@ -84,11 +84,11 @@
                             <div class="card-header fw-bold d-flex align-items-center justify-content-between">
                                 <span>
                                     <i class="fa fa-list me-2"/>
-                                    Formula
+                                    Fórmula
                                 </span>
                                 <span class="badge bg-info text-dark fw-normal">
                                     <i class="fa fa-barcode me-1"/>
-                                    Scan a component to weigh it
+                                    Escanea un componente para pesarlo
                                 </span>
                             </div>
                             <div class="card-body p-0">
@@ -107,12 +107,12 @@
                                     <table class="table table-sm table-striped mb-0">
                                         <thead>
                                             <tr>
-                                                <th>Component</th>
-                                                <th class="text-end">Qty</th>
-                                                <th>UoM</th>
-                                                <th>Lot</th>
-                                                <th>Expiry</th>
-                                                <th>Weighing</th>
+                                                <th>Componente</th>
+                                                <th class="text-end">Cant.</th>
+                                                <th>UdM</th>
+                                                <th>Lote</th>
+                                                <th>Caducidad</th>
+                                                <th>Pesaje</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -149,7 +149,7 @@
                                                         <t t-if="comp.weighed_qty">
                                                             <span class="badge bg-success p-2">
                                                                 <i class="fa fa-check-circle me-1"/>
-                                                                Weighed: <t t-esc="comp.weighed_qty"/> <t t-esc="comp.uom"/>
+                                                                Pesado: <t t-esc="comp.weighed_qty"/> <t t-esc="comp.uom"/>
                                                                 <t t-if="comp.lot">
                                                                     (<t t-esc="comp.lot"/>)
                                                                 </t>
@@ -162,11 +162,11 @@
                                                                 t-on-click="() => this.weighComponent(comp)">
                                                                 <t t-if="state.weighingProductId === comp.product_id">
                                                                     <i class="fa fa-spinner fa-spin me-2"/>
-                                                                    Weighing…
+                                                                    Pesando…
                                                                 </t>
                                                                 <t t-else="">
                                                                     <i class="fa fa-balance-scale me-2"/>
-                                                                    Weigh
+                                                                    Pesar
                                                                 </t>
                                                             </button>
                                                         </t>
@@ -177,7 +177,7 @@
                                     </table>
                                 </t>
                                 <t t-else="">
-                                    <div class="text-muted fst-italic p-3">No components found.</div>
+                                    <div class="text-muted fst-italic p-3">No se encontraron componentes.</div>
                                 </t>
                             </div>
                         </div>
@@ -185,7 +185,7 @@
                         <!-- Work order list -->
                         <div class="o_pc_mes_mrp_wo_panel d-flex flex-column gap-2">
                             <div class="fw-bold text-muted small text-uppercase ps-1 mb-1">
-                                Work Orders
+                                Órdenes de trabajo
                             </div>
                             <t t-foreach="state.selectedMo.workorders" t-as="wo" t-key="wo.id">
                                 <button
@@ -199,7 +199,7 @@
                             </t>
                             <t t-if="!state.selectedMo.workorders.length">
                                 <div class="text-muted fst-italic py-2">
-                                    No open work orders.
+                                    No hay órdenes de trabajo abiertas.
                                 </div>
                             </t>
                         </div>
@@ -219,11 +219,11 @@
                     <button class="btn btn-outline-secondary btn-lg rounded-pill px-5"
                         t-on-click="backToMoList">
                         <i class="oi oi-chevron-left me-2"/>
-                        Back
+                        Atrás
                     </button>
                     <button class="btn btn-outline-secondary btn-lg rounded-pill px-5"
                         t-on-click="skip">
-                        Skip
+                        Omitir
                     </button>
                 </div>
             </t>
@@ -248,18 +248,18 @@
                             <div class="card-body">
                                 <div class="fw-bold fs-5 mb-3">
                                     <i class="fa fa-balance-scale me-2"/>
-                                    Weighing
+                                    Pesaje
                                 </div>
 
                                 <t t-if="state.simulatedWeight">
                                     <div class="display-4 fw-bold text-primary mb-2">
                                         <t t-esc="state.simulatedWeight"/> kg
                                     </div>
-                                    <div class="text-muted small mb-3">(simulated reading)</div>
+                                    <div class="text-muted small mb-3">(lectura simulada)</div>
                                 </t>
                                 <t t-else="">
                                     <div class="display-4 fw-bold text-muted mb-2">— kg</div>
-                                    <div class="text-muted small mb-3">Place product on scale</div>
+                                    <div class="text-muted small mb-3">Coloca el producto en la báscula</div>
                                 </t>
 
                                 <!--
@@ -275,7 +275,7 @@
                                     class="btn btn-outline-secondary btn-lg rounded-pill px-4"
                                     t-on-click="simulateWeighing">
                                     <i class="fa fa-refresh me-2"/>
-                                    Simulate weighing
+                                    Simular pesada
                                 </button>
                             </div>
                         </div>
@@ -296,18 +296,18 @@
                                 t-on-click="startWorkorder">
                                 <t t-if="state.starting">
                                     <i class="fa fa-spinner fa-spin me-2"/>
-                                    Starting…
+                                    Iniciando…
                                 </t>
                                 <t t-else="">
                                     <i class="fa fa-play me-2"/>
-                                    Start work order
+                                    Iniciar orden
                                 </t>
                             </button>
                         </t>
                         <t t-else="">
                             <div class="alert alert-success text-center px-5">
                                 <i class="fa fa-clock-o me-2"/>
-                                Work order started — time is being logged.
+                                Orden iniciada — registrando tiempo.
                             </div>
                             <button
                                 class="btn btn-danger btn-lg rounded-pill px-5"
@@ -315,11 +315,11 @@
                                 t-on-click="finishWorkorder">
                                 <t t-if="state.stopping">
                                     <i class="fa fa-spinner fa-spin me-2"/>
-                                    Finishing…
+                                    Finalizando…
                                 </t>
                                 <t t-else="">
                                     <i class="fa fa-stop me-2"/>
-                                    Confirm / Finish
+                                    Confirmar / Finalizar
                                 </t>
                             </button>
                         </t>
@@ -332,12 +332,12 @@
                         <button class="btn btn-outline-secondary btn-lg rounded-pill px-5"
                             t-on-click="backToMoDetail">
                             <i class="oi oi-chevron-left me-2"/>
-                            Back
+                            Atrás
                         </button>
                     </t>
                     <button class="btn btn-outline-secondary btn-lg rounded-pill px-5"
                         t-on-click="skip">
-                        Skip
+                        Omitir
                     </button>
                 </div>
             </t>
@@ -348,8 +348,8 @@
                     <div class="bg-white rounded-3 p-5 shadow text-center">
                         <i class="fa fa-spinner fa-spin fa-3x text-primary mb-3"/>
                         <p class="fs-5 mb-0">
-                            <t t-if="state.stopping">Finishing work order…</t>
-                            <t t-else="">Starting work order…</t>
+                            <t t-if="state.stopping">Finalizando orden de fabricación…</t>
+                            <t t-else="">Iniciando orden de fabricación…</t>
                         </p>
                     </div>
                 </div>

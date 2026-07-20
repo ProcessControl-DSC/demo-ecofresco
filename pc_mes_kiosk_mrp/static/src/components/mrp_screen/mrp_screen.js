@@ -84,7 +84,7 @@ export class PcMesMrpScreen extends Component {
             const result = await rpc("/pc_mes_kiosk/workorders", {});
             this.state.productions = Array.isArray(result) ? result : [];
         } catch (_err) {
-            this.state.error = "Could not load manufacturing orders. Please try again.";
+            this.state.error = "No se pudieron cargar las órdenes de fabricación. Inténtalo de nuevo.";
         } finally {
             this.state.loading = false;
         }
@@ -138,10 +138,10 @@ export class PcMesMrpScreen extends Component {
                 }
             } else {
                 this.state.error =
-                    (result && result.error) || "Could not register the weighing.";
+                    (result && result.error) || "No se pudo registrar el pesaje.";
             }
         } catch (_err) {
-            this.state.error = "Could not register the weighing. Please try again.";
+            this.state.error = "No se pudo registrar el pesaje. Inténtalo de nuevo.";
         } finally {
             this.state.weighingProductId = null;
         }
@@ -201,7 +201,7 @@ export class PcMesMrpScreen extends Component {
             (c) => c.barcode && c.barcode === barcode && !c.weighed_qty
         );
         if (!comp) {
-            this._flashScanError(`Unknown or already-weighed barcode: ${barcode}`);
+            this._flashScanError(`Código de barras desconocido o ya pesado: ${barcode}`);
             return;
         }
 
@@ -301,10 +301,10 @@ export class PcMesMrpScreen extends Component {
                 this.state.workorderStarted = true;
             } else {
                 this.state.error =
-                    (result && result.error) || "Could not start work order.";
+                    (result && result.error) || "No se pudo iniciar la orden de fabricación.";
             }
         } catch (_err) {
-            this.state.error = "Could not start work order. Please try again.";
+            this.state.error = "No se pudo iniciar la orden de fabricación. Inténtalo de nuevo.";
         } finally {
             this.state.starting = false;
         }
@@ -326,11 +326,11 @@ export class PcMesMrpScreen extends Component {
                 this.props.onDone();
             } else {
                 this.state.error =
-                    (result && result.error) || "Could not stop work order.";
+                    (result && result.error) || "No se pudo finalizar la orden de fabricación.";
                 this.state.stopping = false;
             }
         } catch (_err) {
-            this.state.error = "Could not stop work order. Please try again.";
+            this.state.error = "No se pudo finalizar la orden de fabricación. Inténtalo de nuevo.";
             this.state.stopping = false;
         }
     }

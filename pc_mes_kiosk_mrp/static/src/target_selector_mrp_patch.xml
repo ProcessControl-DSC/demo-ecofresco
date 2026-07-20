@@ -38,7 +38,7 @@
                 class="o_pc_mes_kiosk_btn btn btn-warning btn-lg rounded-3 ms-2"
                 t-on-click="goToProduction">
                 <i class="fa fa-industry me-2"/>
-                Production / Work Order
+                Producción / Orden de fabricación
             </button>
         </xpath>
 

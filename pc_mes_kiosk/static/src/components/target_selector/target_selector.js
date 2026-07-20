@@ -70,7 +70,7 @@ export class PcMesTargetSelector extends Component {
             this.state.showTask =
                 result.show_task !== undefined ? result.show_task : true;
         } catch (_err) {
-            this.state.error = "Could not load projects. Please try again.";
+            this.state.error = "No se pudieron cargar los proyectos. Inténtalo de nuevo.";
         } finally {
             this.state.loading = false;
         }
@@ -151,7 +151,7 @@ export class PcMesTargetSelector extends Component {
             this._showWorkScreen(projectId, taskId);
         } catch (_err) {
             this.state.saving = false;
-            this.state.error = "Could not save selection. Please try again.";
+            this.state.error = "No se pudo guardar la selección. Inténtalo de nuevo.";
         }
     }
 
@@ -211,7 +211,7 @@ export class PcMesTargetSelector extends Component {
         } catch (_err) {
             this.state.saving = false;
             this.state.quickEndError =
-                "Could not register the check-out. Please try again.";
+                "No se pudo registrar la salida. Inténtalo de nuevo.";
         }
     }
 }

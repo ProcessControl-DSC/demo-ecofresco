@@ -8,7 +8,7 @@
             <t t-if="state.loading">
                 <div class="o_pc_mes_kiosk_loading d-flex flex-column align-items-center justify-content-center flex-grow-1">
                     <i class="fa fa-spinner fa-spin fa-3x text-muted mb-3"/>
-                    <span class="text-muted fs-5">Loading projects…</span>
+                    <span class="text-muted fs-5">Cargando proyectos…</span>
                 </div>
             </t>
 
@@ -20,7 +20,7 @@
                         <t t-esc="state.error"/>
                     </div>
                     <button class="btn btn-secondary btn-lg rounded-pill px-5" t-on-click="skip">
-                        Skip
+                        Omitir
                     </button>
                 </div>
             </t>
@@ -76,7 +76,7 @@
             <t t-elif="showingProjects">
                 <div class="o_pc_mes_kiosk_main d-flex flex-column flex-grow-1 w-100">
                     <div class="o_pc_mes_kiosk_header text-center py-4">
-                        <h2 class="fw-bold">Select your project</h2>
+                        <h2 class="fw-bold">Selecciona tu proyecto</h2>
                     </div>
                     <div class="o_pc_mes_kiosk_grid d-flex flex-wrap justify-content-center gap-3 p-4 overflow-auto">
                         <t t-foreach="state.projects" t-as="project" t-key="project.id">
@@ -87,13 +87,13 @@
                             </button>
                         </t>
                         <t t-if="!state.projects.length">
-                            <div class="text-muted fst-italic">No projects available.</div>
+                            <div class="text-muted fst-italic">No hay proyectos disponibles.</div>
                         </t>
                     </div>
                 </div>
                 <div class="o_pc_mes_kiosk_footer py-4">
                     <button class="btn btn-outline-secondary btn-lg rounded-pill px-5" t-on-click="skip">
-                        Skip
+                        Omitir
                     </button>
                 </div>
             </t>
@@ -102,7 +102,7 @@
             <t t-elif="showingTasks">
                 <div class="o_pc_mes_kiosk_main d-flex flex-column flex-grow-1 w-100">
                     <div class="o_pc_mes_kiosk_header text-center py-4">
-                        <h2 class="fw-bold">Select your task</h2>
+                        <h2 class="fw-bold">Selecciona tu tarea</h2>
                         <p class="text-muted mb-0">
                             <t t-esc="selectedProjectName"/>
                         </p>
@@ -116,22 +116,22 @@
                             </button>
                         </t>
                         <t t-if="!visibleTasks.length">
-                            <div class="text-muted fst-italic py-3">No tasks for this project.</div>
+                            <div class="text-muted fst-italic py-3">No hay tareas para este proyecto.</div>
                         </t>
                     </div>
                 </div>
                 <div class="o_pc_mes_kiosk_footer d-flex gap-3 justify-content-center py-4">
                     <button class="btn btn-outline-secondary btn-lg rounded-pill px-5" t-on-click="backToProjects">
                         <i class="oi oi-chevron-left me-2"/>
-                        Back
+                        Atrás
                     </button>
                     <!-- Allow confirming with just the project when no task needed -->
                     <button class="btn btn-outline-primary btn-lg rounded-pill px-5"
                         t-on-click="() => this.confirmProject(state.selectedProjectId)">
-                        Project only
+                        Solo el proyecto
                     </button>
                     <button class="btn btn-outline-secondary btn-lg rounded-pill px-5" t-on-click="skip">
-                        Skip
+                        Omitir
                     </button>
                 </div>
             </t>
@@ -141,7 +141,7 @@
                 <div class="o_pc_mes_kiosk_saving_overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
                     <div class="bg-white rounded-3 p-5 shadow text-center">
                         <i class="fa fa-spinner fa-spin fa-3x text-primary mb-3"/>
-                        <p class="fs-5 mb-0">Saving…</p>
+                        <p class="fs-5 mb-0">Guardando…</p>
                     </div>
                 </div>
             </t>
