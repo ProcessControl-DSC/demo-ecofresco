@@ -40,7 +40,7 @@ export class IndirectTaskDialog extends Component {
             this.state.tasks = await this.orm.call(
                 "project.task",
                 "pc_shopfloor_get_indirect_tasks",
-                [[]]
+                []
             );
             this.state.loading = false;
         });
@@ -94,7 +94,7 @@ export class IndirectTaskDialog extends Component {
             await this.orm.call(
                 "account.analytic.line",
                 "pc_shopfloor_create_indirect_timesheet",
-                [[], this.state.task.id, this.state.elapsedSeconds]
+                [this.state.task.id, this.state.elapsedSeconds]
             );
             this.notification.add(_t("Tiempo imputado"), { type: "success" });
             this.props.close();
