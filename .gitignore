@@ -2,3 +2,4 @@
 _silicie_poc/
 __pycache__/
 *.pyc
+*.po.bak
