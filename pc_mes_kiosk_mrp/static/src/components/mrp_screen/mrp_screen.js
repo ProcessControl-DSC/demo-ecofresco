@@ -12,7 +12,9 @@ import { rpc } from "@web/core/network/rpc";
  * Navigation flow (≤3 taps per action):
  *   1. List of active manufacturing orders (MOs)
  *   2. Tap an MO → show its formula (BOM components + lot/expiry)
- *      and its open work orders
+ *      and its open work orders. Each component can be weighed individually
+ *      (simulated reading, registered on its stock.move.line with lot/
+ *      traceability via register_weighing).
  *   3. Tap a work order → Weighing placeholder (TODO: real scale) + Confirm
  *      → start_workorder RPC → stop_workorder RPC on confirm → greet screen
  *
@@ -41,6 +43,7 @@ export class PcMesMrpScreen extends Component {
             selectedMo: null,        // full MO object (with workorders array)
             formula: [],             // components from /mo_formula
             formulaLoading: false,
+            weighingProductId: null, // product_id currently being weighed
             selectedWorkorder: null, // {id, name, state, workcenter}
             // ── Weighing placeholder ─────────────────────────────────────
             // TODO: integrate a real scale (barcode/serial comms). For now
@@ -82,6 +85,48 @@ export class PcMesMrpScreen extends Component {
         }
     }
 
+    /**
+     * Weigh one BOM component and register the result on its stock.move.line.
+     *
+     * The weight itself is still simulated (no physical scale — see
+     * simulateWeighing() below), but the outcome is now really recorded on
+     * the component's move line via register_weighing(), with lot
+     * assignment/creation when the product is tracked, so the manufacturing
+     * order keeps traceability of what was actually consumed.
+     */
+    async weighComponent(comp) {
+        if (this.state.weighingProductId || !comp.product_id) {
+            return;
+        }
+        this.state.weighingProductId = comp.product_id;
+        this.state.error = null;
+        // Simulate a plausible reading close to the theoretical BOM quantity
+        // (±3%), rounded to 3 decimals. TODO: replace with a real scale
+        // reading (see simulateWeighing() for hardware integration options).
+        const jitter = 1 + (Math.random() * 0.06 - 0.03);
+        const simulatedQty = Number((Math.max(0, comp.qty * jitter)).toFixed(3));
+        try {
+            const result = await rpc("/pc_mes_kiosk/register_weighing", {
+                production_id: this.state.selectedMo.id,
+                product_id: comp.product_id,
+                qty: simulatedQty,
+            });
+            if (result && result.ok) {
+                comp.weighed_qty = result.recorded_qty;
+                if (result.lot) {
+                    comp.lot = result.lot;
+                }
+            } else {
+                this.state.error =
+                    (result && result.error) || "Could not register the weighing.";
+            }
+        } catch (_err) {
+            this.state.error = "Could not register the weighing. Please try again.";
+        } finally {
+            this.state.weighingProductId = null;
+        }
+    }
+
     // ── Navigation helpers ─────────────────────────────────────────────────
 
     /** Tap on an MO card — go to MO detail (formula + workorder list). */
@@ -91,6 +136,7 @@ export class PcMesMrpScreen extends Component {
         this.state.selectedWorkorder = null;
         this.state.workorderStarted = false;
         this.state.simulatedWeight = null;
+        this.state.weighingProductId = null;
         await this._loadFormula(mo.id);
     }
 
@@ -102,6 +148,7 @@ export class PcMesMrpScreen extends Component {
         this.state.selectedWorkorder = null;
         this.state.workorderStarted = false;
         this.state.simulatedWeight = null;
+        this.state.weighingProductId = null;
     }
 
     /** Tap on a work order button — move to the active-WO step. */

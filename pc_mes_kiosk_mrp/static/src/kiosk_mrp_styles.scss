@@ -57,6 +57,20 @@
                 background: rgba(0, 0, 0, 0.04);
             }
         }
+
+        // Per-component "Weigh" button: large, touch-friendly tap target
+        .o_pc_mes_mrp_weigh_btn {
+            min-width: 140px;
+            min-height: 56px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+
+            &:active {
+                transform: scale(0.97);
+                box-shadow: none;
+            }
+        }
     }
 
     // Scale / weighing card

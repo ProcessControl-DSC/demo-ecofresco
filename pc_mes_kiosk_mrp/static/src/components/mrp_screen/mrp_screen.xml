@@ -100,6 +100,7 @@
                                                 <th>UoM</th>
                                                 <th>Lot</th>
                                                 <th>Expiry</th>
+                                                <th>Weighing</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -123,6 +124,32 @@
                                                             </span>
                                                         </t>
                                                         <t t-else="">—</t>
+                                                    </td>
+                                                    <td>
+                                                        <t t-if="comp.weighed_qty">
+                                                            <span class="badge bg-success p-2">
+                                                                <i class="fa fa-check-circle me-1"/>
+                                                                Weighed: <t t-esc="comp.weighed_qty"/> <t t-esc="comp.uom"/>
+                                                                <t t-if="comp.lot">
+                                                                    (<t t-esc="comp.lot"/>)
+                                                                </t>
+                                                            </span>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <button
+                                                                class="o_pc_mes_mrp_weigh_btn btn btn-primary"
+                                                                t-att-disabled="state.weighingProductId === comp.product_id"
+                                                                t-on-click="() => this.weighComponent(comp)">
+                                                                <t t-if="state.weighingProductId === comp.product_id">
+                                                                    <i class="fa fa-spinner fa-spin me-2"/>
+                                                                    Weighing…
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <i class="fa fa-balance-scale me-2"/>
+                                                                    Weigh
+                                                                </t>
+                                                            </button>
+                                                        </t>
                                                     </td>
                                                 </tr>
                                             </t>

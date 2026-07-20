@@ -16,6 +16,8 @@ class PcMesKioskMrpController(PcMesKioskController):
     New endpoints:
       - /pc_mes_kiosk/workorders   — list active manufacturing orders + workorders
       - /pc_mes_kiosk/mo_formula   — BOM components for a given production order
+      - /pc_mes_kiosk/register_weighing — record a (simulated) weighing on a
+        component's stock.move.line, with lot if the product is tracked
       - /pc_mes_kiosk/start_workorder — start employee time on a workorder
       - /pc_mes_kiosk/stop_workorder  — stop employee time on a workorder
 
@@ -118,11 +120,15 @@ class PcMesKioskMrpController(PcMesKioskController):
         """Return the component lines (BOM formula) for a manufacturing order.
 
         Reads move_raw_ids and resolves lot/expiration_date from the first
-        linked stock.move.line when available.
+        linked stock.move.line when available. Also reports the component's
+        product_id, whether it is lot/serial tracked, and the quantity
+        already weighed (recorded on the move line), so the kiosk can paint
+        each component as pending or weighed.
 
         :param production_id: int — id of mrp.production.
         :return: list of dicts:
-            [{product, qty, uom, lot, expiration_date}]
+            [{product_id, product, qty, uom, tracked, lot, expiration_date,
+              weighed_qty}]
         """
         if not production_id:
             return {"error": "production_id is required"}
@@ -139,10 +145,13 @@ class PcMesKioskMrpController(PcMesKioskController):
         for move in prod.move_raw_ids.filtered(
             lambda m: m.state not in ("cancel", "done")
         ):
-            # Try to resolve lot from the first detailed operation line
+            # Try to resolve lot/weighed quantity from the first detailed
+            # operation line.
             lot_name = ""
             expiration_date = ""
+            weighed_qty = 0.0
             for ml in move.move_line_ids[:1]:
+                weighed_qty = ml.quantity
                 if ml.lot_id:
                     lot_name = ml.lot_id.name
                     # product_expiry adds expiration_date on stock.lot
@@ -152,14 +161,81 @@ class PcMesKioskMrpController(PcMesKioskController):
                         )
             components.append(
                 {
+                    "product_id": move.product_id.id if move.product_id else False,
                     "product": move.product_id.display_name if move.product_id else "",
                     "qty": move.product_qty,
                     "uom": move.product_uom.name if move.product_uom else "",
+                    "tracked": move.product_id.tracking != "none",
                     "lot": lot_name,
                     "expiration_date": expiration_date,
+                    "weighed_qty": weighed_qty,
                 }
             )
         return components
+
+    # ── /pc_mes_kiosk/register_weighing ────────────────────────────────────
+
+    @http.route(
+        "/pc_mes_kiosk/register_weighing",
+        type="json",
+        auth="public",
+        methods=["POST"],
+        csrf=False,
+    )
+    def register_weighing(self, production_id, product_id, qty, lot_name=None, **kwargs):
+        """Register a (simulated) weighing result on a BOM component.
+
+        Locates the component's stock.move on the manufacturing order's
+        move_raw_ids and delegates to stock.move.register_weighing(), which
+        writes the weighed quantity on the move line (creating it if
+        needed) and assigns/creates a lot when the product is tracked.
+
+        No physical scale is involved: the weight is simulated on the
+        frontend and simply recorded here for traceability.
+
+        :param production_id: int — id of mrp.production.
+        :param product_id: int — id of product.product (the component).
+        :param qty: float — simulated weighed quantity.
+        :param lot_name: str or None — lot/serial name; auto-generated if
+            not given and the product is tracked.
+        :return: {'ok': True, 'recorded_qty': float, 'lot': str|False} or
+            {'ok': False, 'error': str}.
+        """
+        if not production_id or not product_id or qty in (None, ""):
+            return {
+                "ok": False,
+                "error": "production_id, product_id and qty are required",
+            }
+
+        prod = (
+            request.env["mrp.production"]
+            .sudo()
+            .browse(int(production_id))
+        )
+        if not prod.exists():
+            return {"ok": False, "error": "Manufacturing order not found"}
+
+        move = prod.move_raw_ids.filtered(
+            lambda m: m.product_id.id == int(product_id)
+            and m.state not in ("cancel", "done")
+        )[:1]
+        if not move:
+            return {
+                "ok": False,
+                "error": "Component not found on this manufacturing order",
+            }
+
+        try:
+            result = move.register_weighing(float(qty), lot_name=lot_name or None)
+        except Exception as exc:
+            _logger.warning("pc_mes_kiosk_mrp: register_weighing error: %s", exc)
+            return {"ok": False, "error": str(exc)}
+
+        return {
+            "ok": True,
+            "recorded_qty": result["recorded_qty"],
+            "lot": result["lot"],
+        }
 
     # ── /pc_mes_kiosk/start_workorder ─────────────────────────────────────
 

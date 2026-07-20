@@ -185,3 +185,118 @@ class TestKioskMrp(TransactionCase):
                 field_names,
                 f"mrp.workcenter.productivity must have field '{required_field}'.",
             )
+
+
+@tagged("post_install", "-at_install")
+class TestKioskMrpWeighing(TransactionCase):
+    """Verify stock.move.register_weighing() — the model method behind the
+    /pc_mes_kiosk/register_weighing endpoint — records the weighed quantity
+    (and lot, when the component is tracked) on the move's stock.move.line.
+
+    These tests bypass the HTTP controller layer and exercise
+    register_weighing() directly, matching the convention used above for
+    start_employee/stop_employee.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.finished_product = cls.env["product.product"].create(
+            {"name": "Kiosk Weighing Finished Product", "is_storable": True}
+        )
+        cls.component_untracked = cls.env["product.product"].create(
+            {"name": "Kiosk Weighing Component", "is_storable": True}
+        )
+        cls.component_lot = cls.env["product.product"].create(
+            {
+                "name": "Kiosk Weighing Tracked Component",
+                "is_storable": True,
+                "tracking": "lot",
+            }
+        )
+        cls.bom = cls.env["mrp.bom"].create(
+            {
+                "product_tmpl_id": cls.finished_product.product_tmpl_id.id,
+                "product_qty": 1.0,
+            }
+        )
+        cls.env["mrp.bom.line"].create(
+            {
+                "product_id": cls.component_untracked.id,
+                "product_qty": 2.0,
+                "bom_id": cls.bom.id,
+            }
+        )
+        cls.env["mrp.bom.line"].create(
+            {
+                "product_id": cls.component_lot.id,
+                "product_qty": 3.0,
+                "bom_id": cls.bom.id,
+            }
+        )
+
+        mo_form = Form(cls.env["mrp.production"])
+        mo_form.product_id = cls.finished_product
+        mo_form.bom_id = cls.bom
+        mo_form.product_qty = 1
+        cls.mo = mo_form.save()
+        cls.mo.action_confirm()
+
+    def _move_for(self, product):
+        return self.mo.move_raw_ids.filtered(lambda m: m.product_id == product)
+
+    def test_register_weighing_untracked_creates_move_line(self):
+        """Weighing an untracked component records quantity+picked on its
+        move line, creating it if no reservation had produced one yet."""
+        move = self._move_for(self.component_untracked)
+        move.move_line_ids.unlink()  # exercise the "no move line yet" branch
+
+        result = move.register_weighing(1.95)
+
+        self.assertAlmostEqual(result["recorded_qty"], 1.95)
+        self.assertFalse(result["lot"], "Untracked component must not get a lot.")
+        self.assertEqual(len(move.move_line_ids), 1)
+        self.assertAlmostEqual(move.move_line_ids.quantity, 1.95)
+        self.assertTrue(move.move_line_ids.picked)
+
+    def test_register_weighing_updates_existing_move_line(self):
+        """If a move line already exists (e.g. from reservation), weighing
+        overwrites its quantity instead of creating a duplicate line."""
+        move = self._move_for(self.component_untracked)
+        move.move_line_ids.unlink()
+        move.register_weighing(1.0)
+        self.assertEqual(len(move.move_line_ids), 1)
+
+        result = move.register_weighing(2.5)
+
+        self.assertEqual(
+            len(move.move_line_ids), 1,
+            "register_weighing must reuse the existing move line, not duplicate it.",
+        )
+        self.assertAlmostEqual(result["recorded_qty"], 2.5)
+        self.assertAlmostEqual(move.move_line_ids.quantity, 2.5)
+
+    def test_register_weighing_tracked_creates_lot(self):
+        """Weighing a lot-tracked component without a lot_name auto-generates
+        a lot and links it to the move line."""
+        move = self._move_for(self.component_lot)
+
+        result = move.register_weighing(2.9)
+
+        self.assertTrue(result["lot"], "A lot name must be generated for tracked products.")
+        self.assertEqual(move.move_line_ids.lot_id.name, result["lot"])
+        self.assertAlmostEqual(move.move_line_ids.quantity, 2.9)
+        self.assertTrue(move.move_line_ids.picked)
+
+    def test_register_weighing_tracked_reuses_lot_name(self):
+        """Passing an explicit lot_name reuses/creates that exact lot."""
+        move = self._move_for(self.component_lot)
+
+        result = move.register_weighing(3.0, lot_name="LOT-TEST-001")
+
+        self.assertEqual(result["lot"], "LOT-TEST-001")
+        self.assertEqual(move.move_line_ids.lot_id.name, "LOT-TEST-001")
+        self.assertEqual(
+            move.move_line_ids.lot_id.product_id, self.component_lot,
+        )
