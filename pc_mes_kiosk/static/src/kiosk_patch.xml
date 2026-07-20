@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!--
+        Extends the native kiosk template to add the MES target selector screen.
+        The selector occupies the same area as the other kiosk screens.
+    -->
+    <t t-inherit="hr_attendance.public_kiosk_app" t-inherit-mode="extension">
+
+        <!--
+            The native template renders each screen with a t-if on active_display.
+            We add our new screen at the end of the content area, before the closing
+            tag of the main wrapper. We locate the KioskGreetings node (always present)
+            and insert after it.
+        -->
+        <!--
+            Insert the MES target selector screen after the greet block.
+            The greet block is: <t t-if="this.state.active_display === 'greet'">…</t>
+            We locate it via the KioskGreetings child and position after its parent <t>.
+        -->
+        <xpath expr="//t[@t-if=&quot;this.state.active_display === 'greet'&quot;]" position="after">
+            <t t-if="this.state.active_display === 'mes_target'">
+                <PcMesTargetSelector
+                    employeeId="_pcMesEmployeeId"
+                    onDone="() => this.switchDisplay('greet')"
+                    onSkip="() => this.switchDisplay('greet')"
+                    onQuickEnd="() => this._pcMesQuickEnd()"
+                />
+            </t>
+        </xpath>
+
+    </t>
+
+</templates>

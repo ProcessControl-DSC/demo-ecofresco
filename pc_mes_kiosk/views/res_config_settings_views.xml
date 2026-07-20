@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="pc_mes_kiosk_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">pc.mes.kiosk.res.config.settings.view.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="hr_attendance.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='hr_attendance']" position="inside">
+                <block title="Kiosco MES — Imputación a proyecto" name="pc_mes_kiosk_block">
+                    <setting
+                        string="Momento de la pregunta"
+                        help="Elige si el operario selecciona proyecto/tarea al fichar entrada o al fichar salida."
+                    >
+                        <field name="pc_kiosk_mode" />
+                    </setting>
+                    <setting
+                        string="Mostrar selector de proyecto"
+                        help="Muestra un selector de proyecto en la pantalla de imputación del kiosco."
+                    >
+                        <field name="pc_kiosk_show_project" />
+                    </setting>
+                    <setting
+                        string="Mostrar selector de tarea"
+                        help="Muestra un selector de tarea en la pantalla de imputación del kiosco."
+                    >
+                        <field name="pc_kiosk_show_task" />
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>
