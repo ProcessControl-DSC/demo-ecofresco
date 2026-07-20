@@ -7,11 +7,24 @@ import { rpc } from "@web/core/network/rpc";
  * PcMesTargetSelector — tablet-friendly project/task picker shown inside the
  * attendance kiosk after check-in (or check-out, depending on configuration).
  *
+ * Once the project/task is chosen (or the operator skips it), the component
+ * shows a small "work screen" confirmation with two big buttons — "Pausa"
+ * and "Fichar salida" — so the operator can close the workday (or take a
+ * break) without leaving this app: they don't need to walk back to the main
+ * kiosk screen and re-enter their PIN. Both buttons reuse the native
+ * check-in/check-out toggle (hr_attendance has no separate "break" state —
+ * a pause IS a check-out; resuming later is a normal check-in again).
+ *
  * Props:
  *   employeeId  {Number}  — id of the employee who just checked in/out.
- *   onDone      {Function} — called with no arguments when the selection is
- *                            saved and the kiosk should move to the greet screen.
+ *   onDone      {Function} — called with no arguments when the operator taps
+ *                            "Continuar" and the kiosk should move to the
+ *                            greet screen.
  *   onSkip      {Function} — called with no arguments when the user skips.
+ *   onQuickEnd  {Function} — called (returns a Promise) when the operator
+ *                            taps "Pausa" or "Fichar salida". Provided by the
+ *                            kiosk patch; it replays the cached PIN through
+ *                            the native onManualSelection() to check out.
  */
 export class PcMesTargetSelector extends Component {
     static template = "pc_mes_kiosk.TargetSelector";
@@ -19,6 +32,7 @@ export class PcMesTargetSelector extends Component {
         employeeId: { type: Number },
         onDone: { type: Function },
         onSkip: { type: Function },
+        onQuickEnd: { type: Function },
     };
 
     setup() {
@@ -34,6 +48,11 @@ export class PcMesTargetSelector extends Component {
             // Navigation
             selectedProjectId: null,
             saving: false,
+            // Work screen shown after the target is confirmed (or skipped)
+            confirmed: false,
+            confirmedProjectName: "",
+            confirmedTaskName: "",
+            quickEndError: null,
         });
         this._loadTargets();
     }
@@ -129,7 +148,7 @@ export class PcMesTargetSelector extends Component {
                 project_id: projectId || null,
                 task_id: taskId || null,
             });
-            this.props.onDone();
+            this._showWorkScreen(projectId, taskId);
         } catch (_err) {
             this.state.saving = false;
             this.state.error = "Could not save selection. Please try again.";
@@ -148,8 +167,51 @@ export class PcMesTargetSelector extends Component {
         this.confirmSelection(projectId, null);
     }
 
-    /** Skip target selection and proceed to greet screen. */
+    /**
+     * Move to the "work screen": the imputation was saved (or skipped), and
+     * the operator now sees the Pausa / Fichar salida controls, plus a
+     * Continuar button to head back to the greet screen.
+     */
+    _showWorkScreen(projectId, taskId) {
+        const project = this.state.projects.find((p) => p.id === projectId);
+        const task = this.state.tasks.find((t) => t.id === taskId);
+        this.state.confirmedProjectName = project ? project.name : "";
+        this.state.confirmedTaskName = task ? task.name : "";
+        this.state.saving = false;
+        this.state.confirmed = true;
+    }
+
+    /** Skip target selection, but still show the work screen (Pausa /
+     * Fichar salida must stay reachable even if no project/task was set). */
     skip() {
-        this.props.onSkip();
+        this._showWorkScreen(null, null);
+    }
+
+    /** Tap on "Continuar": leave the work screen and go back to greet/idle. */
+    continueToGreet() {
+        this.props.onDone();
+    }
+
+    /**
+     * Tap on "Pausa" or "Fichar salida": replay the cached PIN through the
+     * native check-in/out toggle so the operator closes (or pauses) the
+     * workday in a single tap, without leaving this screen or re-entering
+     * their PIN on the main kiosk list.
+     */
+    async quickEnd() {
+        if (this.state.saving) {
+            return;
+        }
+        this.state.saving = true;
+        this.state.quickEndError = null;
+        try {
+            await this.props.onQuickEnd();
+            // On success the parent switches active_display away from
+            // 'mes_target', so this component will be unmounted shortly.
+        } catch (_err) {
+            this.state.saving = false;
+            this.state.quickEndError =
+                "Could not register the check-out. Please try again.";
+        }
     }
 }

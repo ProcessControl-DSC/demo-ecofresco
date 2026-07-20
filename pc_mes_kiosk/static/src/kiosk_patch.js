@@ -68,6 +68,14 @@ patch(kioskAttendanceApp.prototype, {
             return;
         }
 
+        // Cache employee id + PIN for the lifetime of this kiosk session so the
+        // "Pausa" / "Fichar salida" quick actions on the MES work screen can
+        // replay the same toggle (check-in <-> check-out) without asking the
+        // operator to re-enter their PIN. Cached regardless of whether the
+        // target selector is shown below, so the quick action is always usable.
+        this._pcMesEmployeeId = employeeId;
+        this._pcMesPin = enteredPin;
+
         const attendance = this.employeeData && this.employeeData.attendance;
         const isCheckIn = attendance && !attendance.check_out;
         const isCheckOut = attendance && !!attendance.check_out;
@@ -77,10 +85,27 @@ patch(kioskAttendanceApp.prototype, {
             (this._pcMesMode === "on_checkout" && isCheckOut);
 
         if (shouldShow) {
-            // Store employee id so the selector knows whose attendance to update.
-            this._pcMesEmployeeId = employeeId;
             // Navigate to the MES target selector instead of greet.
             this.state.active_display = "mes_target";
         }
+    },
+
+    /**
+     * Called from the MES target selector's "Pausa" / "Fichar salida"
+     * buttons. Replays the cached employee id + PIN through the same
+     * onManualSelection() toggle used by the kiosk's own PIN screen: since
+     * the attendance is currently open, this performs a check-out (native
+     * hr_attendance behaviour — there is no separate "break" state, a pause
+     * IS a check-out; the operator resumes later with a normal check-in).
+     *
+     * On success this.state.active_display moves to 'greet' (or back to
+     * 'mes_target' if the module is configured to ask for the project/task
+     * on check-out instead of check-in), so the work screen unmounts itself.
+     */
+    async _pcMesQuickEnd() {
+        if (!this._pcMesEmployeeId) {
+            return;
+        }
+        await this.onManualSelection(this._pcMesEmployeeId, this._pcMesPin);
     },
 });

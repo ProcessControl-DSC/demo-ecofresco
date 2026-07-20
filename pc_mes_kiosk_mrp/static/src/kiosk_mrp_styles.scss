@@ -71,6 +71,21 @@
                 box-shadow: none;
             }
         }
+
+        // Row briefly highlighted when its barcode was just scanned
+        // (scan-to-weigh feedback, before "Weighed: X" badge appears).
+        .o_pc_mes_mrp_scanned_row {
+            animation: o_pc_mes_mrp_scan_flash 1.5s ease-out;
+        }
+    }
+
+    @keyframes o_pc_mes_mrp_scan_flash {
+        0% {
+            background-color: rgba(27, 114, 211, 0.35);
+        }
+        100% {
+            background-color: transparent;
+        }
     }
 
     // Scale / weighing card

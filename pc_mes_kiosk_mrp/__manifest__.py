@@ -3,7 +3,7 @@
 {
     "name": "PC MES Kiosk - Manufacturing",
     "summary": "Extend the MES attendance kiosk with a Production / Work Order path",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "category": "Manufacturing",
     "author": "Process Control",
     "website": "https://www.processcontrol.es",

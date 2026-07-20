@@ -121,14 +121,15 @@ class PcMesKioskMrpController(PcMesKioskController):
 
         Reads move_raw_ids and resolves lot/expiration_date from the first
         linked stock.move.line when available. Also reports the component's
-        product_id, whether it is lot/serial tracked, and the quantity
-        already weighed (recorded on the move line), so the kiosk can paint
-        each component as pending or weighed.
+        product_id, its barcode (EAN, so the kiosk can match a scale/scanner
+        reading to the right component), whether it is lot/serial tracked,
+        and the quantity already weighed (recorded on the move line), so the
+        kiosk can paint each component as pending or weighed.
 
         :param production_id: int — id of mrp.production.
         :return: list of dicts:
-            [{product_id, product, qty, uom, tracked, lot, expiration_date,
-              weighed_qty}]
+            [{product_id, product, barcode, qty, uom, tracked, lot,
+              expiration_date, weighed_qty}]
         """
         if not production_id:
             return {"error": "production_id is required"}
@@ -163,6 +164,7 @@ class PcMesKioskMrpController(PcMesKioskController):
                 {
                     "product_id": move.product_id.id if move.product_id else False,
                     "product": move.product_id.display_name if move.product_id else "",
+                    "barcode": move.product_id.barcode or "",
                     "qty": move.product_qty,
                     "uom": move.product_uom.name if move.product_uom else "",
                     "tracked": move.product_id.tracking != "none",

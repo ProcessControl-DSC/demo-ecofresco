@@ -24,6 +24,7 @@
                     employeeId="_pcMesEmployeeId"
                     onDone="() => this.switchDisplay('greet')"
                     onSkip="() => this.switchDisplay('greet')"
+                    onQuickEnd="() => this._pcMesQuickEnd()"
                 />
             </t>
         </xpath>

@@ -2,8 +2,16 @@
 // Copyright 2026 Process Control (https://www.processcontrol.es)
 // License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html).
 
-import { Component, useState } from "@odoo/owl";
+import { Component, useExternalListener, useState } from "@odoo/owl";
 import { rpc } from "@web/core/network/rpc";
+
+// A keyboard-wedge barcode scanner emits each digit of the EAN as a fast
+// burst of keydown events, normally terminated by "Enter". A human never
+// types this fast, so any gap longer than SCAN_GAP_MS between two keydowns
+// resets the buffer — this tells scanner input apart from stray keystrokes
+// without needing a dedicated focused input field.
+const SCAN_GAP_MS = 100;
+const EAN13_LENGTH = 13;
 
 /**
  * PcMesMrpScreen — tablet-friendly Manufacturing / Work Order screen shown
@@ -45,6 +53,10 @@ export class PcMesMrpScreen extends Component {
             formulaLoading: false,
             weighingProductId: null, // product_id currently being weighed
             selectedWorkorder: null, // {id, name, state, workcenter}
+            // ── Barcode scanner (scan-to-weigh) ──────────────────────────
+            scannedProductId: null,  // product_id just matched — for the
+                                      // brief highlight animation on its row
+            scanError: null,         // e.g. "Unknown barcode: 123..."
             // ── Weighing placeholder ─────────────────────────────────────
             // TODO: integrate a real scale (barcode/serial comms). For now
             // we display a simulated weight so the UX flow is complete.
@@ -54,6 +66,14 @@ export class PcMesMrpScreen extends Component {
             stopping: false,
             workorderStarted: false, // true once start_workorder returned ok
         });
+
+        // Internal (non-reactive) scanner buffer — see _onScannerKeydown().
+        this._scanBuffer = "";
+        this._lastScanKeyTime = 0;
+        this._scanHighlightTimer = null;
+        this._scanErrorTimer = null;
+        useExternalListener(window, "keydown", (ev) => this._onScannerKeydown(ev));
+
         this._loadProductions();
     }
 
@@ -127,6 +147,83 @@ export class PcMesMrpScreen extends Component {
         }
     }
 
+    // ── Barcode scanner (scan component → weigh it) ─────────────────────────
+
+    /**
+     * Global keydown listener that recognizes a barcode-scanner "keyboard"
+     * burst: a USB/Bluetooth HID scanner types the EAN digits and then
+     * Enter, all within a few milliseconds — far faster than a human could
+     * type. We buffer digits and flush (process) the buffer as soon as
+     * either:
+     *   - it reaches EAN13_LENGTH (13 digits), since every component
+     *     barcode in this screen is an EAN13, or
+     *   - an "Enter" arrives (some scanners are configured for shorter
+     *     codes / a trailing terminator).
+     * Any gap longer than SCAN_GAP_MS between two keydowns resets the
+     * buffer, so normal keyboard/touch use elsewhere never gets
+     * misinterpreted as a scan.
+     */
+    _onScannerKeydown(ev) {
+        // Only listen while the formula (BOM components) is on screen.
+        if (this.state.step !== "mo_detail" || this.state.formulaLoading) {
+            return;
+        }
+
+        const now = Date.now();
+        if (now - this._lastScanKeyTime > SCAN_GAP_MS) {
+            this._scanBuffer = "";
+        }
+        this._lastScanKeyTime = now;
+
+        if (ev.key >= "0" && ev.key <= "9") {
+            this._scanBuffer += ev.key;
+            if (this._scanBuffer.length >= EAN13_LENGTH) {
+                this._processScannedBarcode(this._scanBuffer);
+                this._scanBuffer = "";
+            }
+            return;
+        }
+
+        if (ev.key === "Enter" && this._scanBuffer) {
+            this._processScannedBarcode(this._scanBuffer);
+            this._scanBuffer = "";
+        }
+    }
+
+    /**
+     * Match a scanned barcode against the pending (not-yet-weighed)
+     * components of the current formula and trigger its weighing via the
+     * existing register_weighing flow (weighComponent), with a brief
+     * highlight on the matched row for operator feedback.
+     */
+    _processScannedBarcode(barcode) {
+        const comp = this.state.formula.find(
+            (c) => c.barcode && c.barcode === barcode && !c.weighed_qty
+        );
+        if (!comp) {
+            this._flashScanError(`Unknown or already-weighed barcode: ${barcode}`);
+            return;
+        }
+
+        clearTimeout(this._scanHighlightTimer);
+        this.state.scanError = null;
+        this.state.scannedProductId = comp.product_id;
+        this._scanHighlightTimer = setTimeout(() => {
+            this.state.scannedProductId = null;
+        }, 1500);
+
+        this.weighComponent(comp);
+    }
+
+    /** Show a transient error banner for an unrecognized scan. */
+    _flashScanError(message) {
+        clearTimeout(this._scanErrorTimer);
+        this.state.scanError = message;
+        this._scanErrorTimer = setTimeout(() => {
+            this.state.scanError = null;
+        }, 2500);
+    }
+
     // ── Navigation helpers ─────────────────────────────────────────────────
 
     /** Tap on an MO card — go to MO detail (formula + workorder list). */
@@ -137,6 +234,8 @@ export class PcMesMrpScreen extends Component {
         this.state.workorderStarted = false;
         this.state.simulatedWeight = null;
         this.state.weighingProductId = null;
+        this.state.scannedProductId = null;
+        this.state.scanError = null;
         await this._loadFormula(mo.id);
     }
 
@@ -149,6 +248,8 @@ export class PcMesMrpScreen extends Component {
         this.state.workorderStarted = false;
         this.state.simulatedWeight = null;
         this.state.weighingProductId = null;
+        this.state.scannedProductId = null;
+        this.state.scanError = null;
     }
 
     /** Tap on a work order button — move to the active-WO step. */

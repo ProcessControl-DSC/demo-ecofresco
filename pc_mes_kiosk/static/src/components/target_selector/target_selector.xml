@@ -25,6 +25,53 @@
                 </div>
             </t>
 
+            <!-- Work screen: shown once the project/task is confirmed (or
+                 skipped). This is the "pantalla de trabajo" that keeps
+                 Pausa / Fichar salida reachable in a single tap, without
+                 leaving this app or re-entering the PIN. -->
+            <t t-elif="state.confirmed">
+                <div class="o_pc_mes_kiosk_main d-flex flex-column flex-grow-1 w-100 align-items-center justify-content-center px-4">
+                    <div class="o_pc_mes_kiosk_header text-center py-4">
+                        <h2 class="fw-bold mb-1">Trabajando en</h2>
+                        <p class="fs-4 mb-0" t-if="state.confirmedProjectName">
+                            <t t-esc="state.confirmedProjectName"/>
+                            <t t-if="state.confirmedTaskName"> — <t t-esc="state.confirmedTaskName"/></t>
+                        </p>
+                        <p class="fs-5 text-muted mb-0" t-else="">
+                            Sin tarea asignada
+                        </p>
+                    </div>
+
+                    <div class="alert alert-danger text-center px-5" role="alert" t-if="state.quickEndError">
+                        <i class="fa fa-exclamation-triangle me-2"/>
+                        <t t-esc="state.quickEndError"/>
+                    </div>
+
+                    <div class="o_pc_mes_kiosk_grid d-flex flex-wrap justify-content-center gap-3 p-4">
+                        <button
+                            class="o_pc_mes_kiosk_btn btn btn-warning btn-lg rounded-3"
+                            t-on-click="quickEnd">
+                            <i class="fa fa-pause me-2"/>
+                            Pausa
+                        </button>
+                        <button
+                            class="o_pc_mes_kiosk_btn btn btn-danger btn-lg rounded-3"
+                            t-on-click="quickEnd">
+                            <i class="fa fa-sign-out me-2"/>
+                            Fichar salida
+                        </button>
+                    </div>
+                    <p class="text-muted text-center small mb-0">
+                        Para reanudar, vuelve a fichar tu PIN en el kiosco.
+                    </p>
+                </div>
+                <div class="o_pc_mes_kiosk_footer py-4">
+                    <button class="btn btn-primary btn-lg rounded-pill px-5" t-on-click="continueToGreet">
+                        Continuar
+                    </button>
+                </div>
+            </t>
+
             <!-- Project list -->
             <t t-elif="showingProjects">
                 <div class="o_pc_mes_kiosk_main d-flex flex-column flex-grow-1 w-100">

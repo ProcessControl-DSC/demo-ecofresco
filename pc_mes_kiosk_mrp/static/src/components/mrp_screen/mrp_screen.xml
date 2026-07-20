@@ -81,11 +81,23 @@
 
                         <!-- Formula (BOM components) -->
                         <div class="o_pc_mes_mrp_formula_panel card flex-lg-grow-1">
-                            <div class="card-header fw-bold">
-                                <i class="fa fa-list me-2"/>
-                                Formula
+                            <div class="card-header fw-bold d-flex align-items-center justify-content-between">
+                                <span>
+                                    <i class="fa fa-list me-2"/>
+                                    Formula
+                                </span>
+                                <span class="badge bg-info text-dark fw-normal">
+                                    <i class="fa fa-barcode me-1"/>
+                                    Scan a component to weigh it
+                                </span>
                             </div>
                             <div class="card-body p-0">
+                                <t t-if="state.scanError">
+                                    <div class="alert alert-warning m-2 py-2 mb-0">
+                                        <i class="fa fa-exclamation-circle me-2"/>
+                                        <t t-esc="state.scanError"/>
+                                    </div>
+                                </t>
                                 <t t-if="state.formulaLoading">
                                     <div class="d-flex align-items-center justify-content-center py-4">
                                         <i class="fa fa-spinner fa-spin fa-2x text-muted"/>
@@ -105,8 +117,16 @@
                                         </thead>
                                         <tbody>
                                             <t t-foreach="state.formula" t-as="comp" t-key="comp_index">
-                                                <tr>
-                                                    <td><t t-esc="comp.product"/></td>
+                                                <tr t-att-class="{'o_pc_mes_mrp_scanned_row': state.scannedProductId === comp.product_id}">
+                                                    <td>
+                                                        <t t-esc="comp.product"/>
+                                                        <t t-if="comp.barcode">
+                                                            <div class="text-muted small">
+                                                                <i class="fa fa-barcode me-1"/>
+                                                                <t t-esc="comp.barcode"/>
+                                                            </div>
+                                                        </t>
+                                                    </td>
                                                     <td class="text-end"><t t-esc="comp.qty"/></td>
                                                     <td><t t-esc="comp.uom"/></td>
                                                     <td>

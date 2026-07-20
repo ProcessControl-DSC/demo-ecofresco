@@ -3,7 +3,7 @@
 {
     "name": "PC MES Kiosk",
     "summary": "Extend attendance kiosk to capture project/task imputation and create timesheet entries",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Human Resources/Attendances",
     "author": "Process Control",
     "website": "https://www.processcontrol.es",
