@@ -3,7 +3,7 @@
 {
     "name": "PC Shop Floor - Fichaje de jornada",
     "summary": "Ficha entrada/salida de jornada (hr.attendance) automáticamente al conectar/desconectar el operario en Shop Floor, e imputa tiempo a tareas indirectas (Limpieza, Almacén) desde el propio panel",
-    "version": "19.0.2.0.0",
+    "version": "19.0.2.1.0",
     "category": "Manufacturing/Manufacturing",
     "author": "Process Control",
     "website": "https://www.processcontrol.es",

@@ -1,11 +1,12 @@
 # Copyright 2026 Process Control (https://www.processcontrol.es)
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html).
-from odoo import models
+from odoo import api, models
 
 
 class ProjectTask(models.Model):
     _inherit = "project.task"
 
+    @api.model
     def pc_shopfloor_get_indirect_tasks(self):
         """Return the open tasks eligible for the Shop Floor "Tareas
         indirectas" dialog: tasks whose project is flagged

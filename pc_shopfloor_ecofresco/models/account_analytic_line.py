@@ -1,12 +1,13 @@
 # Copyright 2026 Process Control (https://www.processcontrol.es)
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html).
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 
 class AccountAnalyticLine(models.Model):
     _inherit = "account.analytic.line"
 
+    @api.model
     def pc_shopfloor_create_indirect_timesheet(self, task_id, duration_seconds):
         """Create a timesheet entry for an indirect project task (cleaning,
         warehouse...) from the Shop Floor "Tareas indirectas" dialog,
