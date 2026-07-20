@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-inherit="mrp_workorder.MrpDisplay" t-inherit-mode="extension">
+        <xpath expr="//ControlPanelButtons" position="after">
+            <button t-if="!state.firstLoad"
+                    class="o_pc_indirect_task_button btn btn-secondary text-nowrap d-flex align-items-center gap-1 p-2"
+                    t-on-click="() => this.pcOpenIndirectTaskDialog()">
+                <i class="fa fa-clock-o" role="img"/>
+                <span>Tareas indirectas</span>
+            </button>
+        </xpath>
+    </t>
+</templates>

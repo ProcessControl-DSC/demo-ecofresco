@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="pc_shopfloor_ecofresco_view_project_form" model="ir.ui.view">
+        <field name="name">project.project.view.form.pc.shopfloor.ecofresco</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Shop Floor" name="pc_shopfloor_group">
+                    <field name="pc_shopfloor_indirect_task"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

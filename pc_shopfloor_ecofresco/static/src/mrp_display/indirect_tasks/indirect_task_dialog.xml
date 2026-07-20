@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="pc_shopfloor_ecofresco.IndirectTaskDialog">
+        <Dialog size="'md'" title.translate="Tareas indirectas">
+            <div class="o_pc_indirect_task_dialog">
+                <t t-if="state.step === 'select'">
+                    <p t-if="state.loading" class="text-muted mb-0">Cargando tareas...</p>
+                    <p t-elif="!state.tasks.length" class="text-muted mb-0">
+                        No hay tareas indirectas configuradas. Marca la casilla "Tarea
+                        indirecta Shop Floor" en el proyecto (Limpieza, Almacén...) para
+                        que aparezcan aquí.
+                    </p>
+                    <ul t-else="" class="list-group">
+                        <li t-foreach="state.tasks" t-as="task" t-key="task.id"
+                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                            role="button"
+                            t-on-click="() => this.selectTask(task)">
+                            <span t-out="task.name"/>
+                            <span class="badge text-bg-secondary ms-2" t-out="task.project_name"/>
+                        </li>
+                    </ul>
+                </t>
+                <t t-else="">
+                    <div class="text-center py-4">
+                        <div class="text-muted mb-1">Imputando a</div>
+                        <h4 t-out="state.task.name"/>
+                        <div class="display-4 fw-bold my-3 font-monospace" t-out="formattedElapsed"/>
+                    </div>
+                </t>
+            </div>
+            <t t-set-slot="footer">
+                <t t-if="state.step === 'select'">
+                    <button class="btn btn-secondary" t-on-click="() => this.props.close()">Cerrar</button>
+                </t>
+                <t t-else="">
+                    <button class="btn btn-secondary" t-on-click="cancel" t-att-disabled="state.saving">Cancelar</button>
+                    <button class="btn btn-primary" t-on-click="finish" t-att-disabled="state.saving">Finalizar</button>
+                </t>
+            </t>
+        </Dialog>
+    </t>
+</templates>
